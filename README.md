@@ -319,12 +319,75 @@ Program:
     app.listen(process.argv[2]);
 ```
 
-**Find out : When to use put and when to use post and which one of them is idempotent?**
+**Find out : When to use put and post request and how idempotance decides it?**
 
-## 
+## Extracting data from url queries
+
+In Express.js to extract query string parameters, we can use:
+
+    req.query.NAME
+
+To output JSON we can use:
+
+    res.send(object)
+    
+Program to create a route that extracts data from query string in the GET '/search' URL
+route, e.g. `?results=recent&include_tabs=true` and then outputs it back to
+the user in JSON format.
+
+``` js
+    var exp = require('express');
+    var app = exp();
+    app.get("/search", function(req, res) {
+        var json = JSON.stringify(req.query);
+        res.send(json);
+    });
+    app.listen(process.argv[2]);
+```
+
+## Parsing file into JSON
 
 
+For reading, there's an fs module, e.g.,
 
+    fs.readFile(filename, callback)
+
+While the parsing can be done with JSON.parse:
+
+    object = JSON.parse(string)
+
+Program to create a server that reads a file, parses it to JSON and outputs the content
+to the user.
+
+The port is passed in process.argv[2].  The file name is passed in process.argv[3].
+
+Respond with:
+
+    res.json(object)
+
+Everything should match the '/books' resource path.
+
+Program code:
+
+``` js
+    var exp = require('express');
+    var fs = require("fs");
+    var app = exp();
+    app.get("/books", function(req, res) {
+        fs.readFile(process.argv[3], "utf8", function(err, data) {
+            if (err) return res.send(500)
+            try {
+              var json = JSON.parse(data);
+            } catch (error) {
+              console.error(error);
+              res.send(500);
+            }
+            var json = JSON.parse(data);
+            res.send(json);    
+        });
+    });
+    app.listen(process.argv[2]);
+```
 
 
 
