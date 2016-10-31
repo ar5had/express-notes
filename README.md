@@ -134,3 +134,64 @@ Program to serve a static html file:
     //casting process.argv[2]
     app.listen(Number(process.argv[2]));
 ```
+
+## Using template engine with Express
+
+A template engine enables you to use static template files in your application. At runtime, the template engine replaces variables in a template file with actual values, and transforms the template into an HTML file sent to the client. This approach makes it easier to design an HTML page.
+
+Some popular template engines that work with Express are Pug, Mustache, and EJS. The Express application generator uses Jade as its default, but it also supports several others.
+
+See Template Engines (Express wiki) for a list of template engines you can use with Express. See also Comparing JavaScript Templating Engines: Jade, Mustache, Dust and More.
+
+Note: Jade has been renamed to Pug. You can continue to use Jade in your app, and it will work just fine. However if you want the latest updates to the template engine, you must replace Jade with Pug in your app.
+To render template files, set the following application setting properties, set in app.js in the default app created by the generator:
+
+views, the directory where the template files are located. Eg: app.set('views', './views'). This defaults to the views directory in the application root directory.
+view engine, the template engine to use. For example, to use the Pug template engine: app.set('view engine', 'pug').
+Then install the corresponding template engine npm package; for example to install Pug:
+
+`$ npm install pug --save`
+Express-compliant template engines such as Jade and Pug export a function named __express(filePath, options, callback), which is called by the res.render() function to render the template code.
+
+Some template engines do not follow this convention. The Consolidate.js library follows this convention by mapping all of the popular Node.js template engines, and therefore works seamlessly within Express.
+After the view engine is set, you don’t have to specify the engine or load the template engine module in your app; Express loads the module internally, as shown below (for the above example).
+
+app.set('view engine', 'pug');
+Create a Pug template file named index.pug in the views directory, with the following content:
+
+    html
+      head
+        title= title
+      body
+        h1= message
+Then create a route to render the index.pug file. If the view engine property is not set, you must specify the extension of the view file. Otherwise, you can omit it.
+```js
+    app.get('/', function (req, res) {
+      // If view engine is now set -
+      // res.render('index.pug', { title: 'Hey', message: 'Hello there!'});
+      res.render('index', { title: 'Hey', message: 'Hello there!'});
+    });
+```
+When you make a request to the home page, the index.pug file will be rendered as HTML.
+
+Program to create an Express.js app with a home page rendered by Jade template engine.
+The homepage should respond to /home.
+The view should show the current date using toDateString.
+
+``` js 
+    var exp = require("express");
+    var path = require("path");
+    var app = exp();
+    app.set("views", process.argv[3]||path.join(__dirname, "templates"));
+    app.set("view engine", 'jade');
+    app.get("/home", function(req, res) {
+         res.render('index', {date: new Date().toDateString()});
+    });
+    app.listen(process.argv[2]);
+```
+
+``` jade
+    // index.jade (templates/index.jade)
+    h1 Hello World
+    p1 Today is #{date}.
+```
