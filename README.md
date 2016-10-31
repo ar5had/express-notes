@@ -67,7 +67,6 @@ Express looks up the files in the order in which you set the static directories 
 
 To create a virtual path prefix (where the path does not actually exist in the file system) for files that are served by the express.static function, specify a mount path for the static directory, as shown below:
 
-app.use('/static', express.static('public'));
 Now, you can load the files that are in the public directory from the /static path prefix.
 
     http://localhost:3000/static/images/kitten.jpg
@@ -79,3 +78,53 @@ Now, you can load the files that are in the public directory from the /static pa
 However, the path that you provide to the express.static function is relative to the directory from where you launch your node process. If you run the express app from another directory, it’s safer to use the absolute path of the directory that you want to serve:
 
     app.use('/static', express.static(__dirname + '/public'));
+
+In Node.js, __dirname is always the directory in which the currently executing script resides. In other words, you typed __dirname into one of your script files and value would be that file's directory.
+
+By contrast, . gives you the directory from which you ran the node command in your terminal window (i.e. your working directory).
+
+The exception is when you use . with require(). The path inside require is always relative to the file containing the call to require, so . always means the directory containing that file.
+
+## Using path to locate a folder
+To get the file path to a folder we will require the native Node module path, near the top of app.js.
+
+    var path = require('path');
+The path module exposes a join method that allows us to chain together variables to create a file path. The join method is used instead of specifying a full file path, as this avoids issues of operating systems working differently with forward slashes and backslashes.
+
+So we'll pass path.join into the express.static method.
+
+And then we'll path the folder information into path.join. The first parameter to use is a native Node variable __dirname which contains the file path of the current folder. The second parameter will be the name of the folder containing the static resources, in our case public.
+
+All together it looks like this.
+
+app.use(express.static(path.join(__dirname, 'public')));
+This will tell Express to match any routes for files found in this folder and deliver the files directly to the browser. This should be done before any other routes are defined and before the server is set up to listen.
+
+Here's the app.js file now:
+
+    var express = require('express');
+    var path = require('path');
+    var app = express();
+    app.use(express.static(path.join(__dirname, 'public')));
+    // Define the port to run on
+    app.listen(3000);
+ 
+When Express receives a request for a route it is now checking to see whether such a file path exists in the static directory we defined. If it does it delivers this directly to the browser with no need for us to add in any routes.
+
+## Defining a subset of routes
+You can define that the static files should be found under a particular folder, by specifying the name of the path before the location of the files.
+
+To only try and match routes that start with /public update the line to:
+
+app.use('/public', express.static(path.join(__dirname + '/public')));
+Head to http://localhost:3000/public/index.html or http://localhost:3000/public/ this time to see the page.
+
+Program to serve a static html file:
+
+    var express = require("express");
+    var path = require("path");
+    var app = express();
+    app.use(express.static(process.argv[3]||path.join(__dirname,"public")));
+    //casting process.argv[2]
+    app.listen(Number(process.argv[2]));
+    
