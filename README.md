@@ -224,8 +224,7 @@ Returns middleware that only parses urlencoded bodies. This parser accepts only 
 
 A new body object containing the parsed data is populated on the request object after the middleware (i.e. req.body). This object will contain key-value pairs, where the value can be a string or array (when extended is false), or any type (when extended is true).
 
-Program to write a route ('/form') that processes HTML form input
-(<form><input name="str"/></form>) and prints backwards the str value.
+Program to write a route ('/form') that processes HTML form input (\<form>\<input name="str"/>\</form>) and prints backwards the str value:
 
 ``` js
     var exp = require("express");
@@ -238,4 +237,102 @@ Program to write a route ('/form') that processes HTML form input
     app.listen(process.argv[2]);
 ```
 
-##
+## Using stylus middleware
+
+To plug-in stylus someone can use this middleware:
+
+    app.use(require('stylus').middleware(__dirname + '/public'));
+
+Program to style your HTML from previous example with some Stylus middleware.
+
+Your solution must listen on the port number supplied by process.argv[2].
+
+The path containing the HTML and Stylus files is provided in process.argv[3]
+(they are in the same directory). You can create your own folder and use these:
+
+The main.styl file:
+
+    p
+      color red
+
+The index.html file:
+
+    <html>
+      <head>
+        <title>expressworks</title>
+        <link rel="stylesheet" type="text/css" href="/main.css"/>
+      </head>
+      <body>
+        <p>I am red!</p>
+      </body>
+    </html>
+    
+``` js
+    var exp = require("express");
+    var path = require("path");
+    var stylus = require("stylus");
+    var app = exp();
+    app.use(stylus.middleware(path.join(__dirname, "public")));
+    app.use(exp.static(path.join(__dirname, "public")));
+    app.listen(process.argv[2]);
+```
+
+## Handling PUT request
+
+Program to create an Express.js server that processes PUT '/message/:id' requests.
+
+For instance:
+
+    PUT /message/526aa677a8ceb64569c9d4fb
+
+As a response to these requests, return the SHA1 hash of the current date
+plus the sent ID:
+
+``` js
+    require('crypto')
+      .createHash('sha1')
+      .update(new Date().toDateString() + id)
+      .digest('hex')
+```
+
+To handle PUT requests use:
+
+    app.put('/path/:NAME', function(req, res){...});
+
+To extract parameters from within the request handlers, use:
+
+    req.params.NAME
+    
+Program: 
+
+``` js
+    var exp = require("express");
+    var app = exp();
+    app.put("/message/:id", function(req, res) {
+        var hash = require("crypto")
+            .createHash('sha1')
+            .update(new Date().toDateString() + req.params.id)
+            // set hex encoding
+            .digest('hex');
+        res.send(hash);
+    });
+    app.listen(process.argv[2]);
+```
+
+**Find out : When to use put and when to use post and which one of them is idempotent?**
+
+## 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
