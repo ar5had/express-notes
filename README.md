@@ -363,7 +363,7 @@ The port is passed in process.argv[2].  The file name is passed in process.argv[
 
 Respond with:
 
-    res.json(object)
+    res.send(object)
 
 Everything should match the '/books' resource path.
 
