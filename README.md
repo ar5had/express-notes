@@ -30,6 +30,23 @@ Program to create an Express.js app that outputs "Hello World!" when somebody go
     });
     app.listen(process.argv[2]);
 ```
+## Catching routes
+
+For catching routes - setting custom handlers for `/login` and `/`
+
+```js
+    app.get('/login', function(req, res) {
+      //... login page
+    });
+    app.get('/', function(req, res) {
+      //...index page
+    });
+    // catches all routes excep /login and homepage
+    app.get('/:pageCalled', function(req, res) {
+      console.log('retrieving page: ' + req.params.pageCalled);
+      //... mypage.html
+    });
+```
 
 ## Adding middleware
 
