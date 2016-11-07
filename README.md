@@ -406,6 +406,59 @@ Program code:
     app.listen(process.argv[2]);
 ```
 
+## Middleware functions execution order
+For the code below:
+```js
+    var express = require('express');
+    var router = express.Router();
+
+    router.use(function(req, res, next){
+      console.log("first use, declared before anything else");
+      next();
+    });
+
+    router.get("/:foo", function(req, res, next){
+      console.log("rendering foo");
+      res.render('index', { title: 'Express' });
+    });
+
+    router.param("foo", function(req, res, next, id){
+      console.log("Foo param requested", id);
+      next();
+    });
+
+    router.use(function(req, res, next){
+      console.log("second use, declared afte everything else");
+      next();
+    });
+
+    module.exports = router;
+```
+
+This provides a good cross-section of the major parts of an express route handler setup.
+
+On running this code, however, you might find it didn’t quite work as you expected.
+
+The Output
+
+    first use, declared before anything else
+    Foo param requested foo
+    rendering foo
+
+**Note:** that the “second use” console log message never shows up!
+
+It turns out the order in which you add the middleware is important. And since the 2nd “use” method is added after the “get” handler, it is never called.
+
+The “get” handler short-circuits the middleware when it renders the page, preventing any further middleware from being processed.
+
+### Middleware Ordering
+
+Almost all Express middleware is treated equally when it comes to the order in which it executes. 
+With the exception of “.param” always happening just before any route handler that matches the parameter, the order in which your route handlers and other middleware functions are declared is the order which they will be executed.
+
+This is true for all levels of your routing and middleware configuration. Whether you are dealing with a router instances, adding sub-routers or working with the top level Express application instance, calling .use, .get/post/etc, or any other middleware method will result in the code executing in that order.
+
+The next time you’re wondering when your middleware will execute, then, just look at the order in which it was declared. You’ll know, with certainty, when the code will be called.
 
 
 
